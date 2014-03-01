@@ -1,15 +1,6 @@
-;;; addressbook-bookmark.el -- An adress book based on Standard Emacs bookmarks.
+;;; addressbook-bookmark.el --- An adress book based on Standard Emacs bookmarks.
 
-;; Filename: addressbook-bookmark.el
-;; Author: Thierry Volpiatto
-;; Maintainer: Thierry Volpiatto <thierry.volpiatto@gmail.com>
-;; Copyright (C) 2009 ~ 2010, Thierry Volpiatto, all rights reserved.
-
-;; Created: <2010-06-19 Sam.>
-
-;; X-URL: http://mercurial.intuxication.org/hg/emacs-bookmark-extension/
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Copyright (C) 2009 ~ 2014, Thierry Volpiatto, all rights reserved.
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -27,20 +18,6 @@
 ;; along with this program; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 51 Franklin Street, Fifth
 ;; Floor, Boston, MA 02110-1301, USA.
-
-;;; Dependencies: bookmark-extensions.el
-
-;;; Commentary: This is an addressbook for Emacs based on
-;;              standard Emacs bookmarks.
-;;              It provide completion on contacts in `message-mode' buffers,
-;;              a special mode to display contacts with address, phone etc...
-;;              If you have installed google-maps
-;;              http://julien.danjou.info/google-maps-el.html
-;;              you can switch to google map based on address of your contact.
-;;              It is fully compatible with helm
-;;              https://github.com/emacs-helm/helm
-;;              If you use helm see `helm-bookmark-ext' and turn on `helm-mode'
-;;              to have helm completion in message buffers.
 
 ;;; Code:
 

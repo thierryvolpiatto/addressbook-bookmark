@@ -1,6 +1,10 @@
 ;;; addressbook-bookmark.el --- An adress book based on Standard Emacs bookmarks.
 
-;; Copyright (C) 2009 ~ 2014, Thierry Volpiatto, all rights reserved.
+;; Author: Thierry Volpiatto <thierry.volpiatto@gmail.com>
+;; Copyright (C) 2009~2014 Thierry Volpiatto, all rights reserved.
+;; X-URL: https://github.com/thierryvolpiatto/addressbook-bookmark
+
+;; Compatibility: GNU Emacs 24.1
 
 ;; This file is NOT part of GNU Emacs.
 

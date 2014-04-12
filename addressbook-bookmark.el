@@ -4,7 +4,7 @@
 ;; Copyright (C) 2009~2014 Thierry Volpiatto, all rights reserved.
 ;; X-URL: https://github.com/thierryvolpiatto/addressbook-bookmark
 
-;; Compatibility: GNU Emacs 24.1
+;; Compatibility: GNU Emacs 24.1+
 
 ;; This file is NOT part of GNU Emacs.
 

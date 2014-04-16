@@ -144,6 +144,8 @@ Special commands:
   (addressbook-set-mail-buffer-1 nil append 'cc))
 
 ;;; Completion in message buffer with TAB.
+;;
+;;;###autoload
 (defun addressbook-turn-on-mail-completion ()
   (bookmark-maybe-load-default-file)
   (setq message-tab-body-function nil)
@@ -214,7 +216,7 @@ Special commands:
                         (multiread)))))
       (multiread))))
 
-
+;;;###autoload
 (defun addressbook-bookmark-set ()
   "Record addressbook bookmark entries interactively."
   (interactive)
@@ -253,12 +255,9 @@ Special commands:
   (setq bookmark-alist-modification-count (1+ bookmark-alist-modification-count))
   (when (bookmark-time-to-save-p) (bookmark-save)))
 
-(defun addressbook-gnus-sum-bookmark ()
-  "Record an addressbook bookmark from a gnus summary buffer."
-  (interactive)
-  (let* ((data (aref (gnus-summary-article-header
-                      (cdr gnus-article-current)) 2))
-         (name (read-string "Name: "
+(defun addressbook--bookmark-from-mail (data)
+  "Record an addressbook bookmark from a mail buffer."
+  (let* ((name (read-string "Name: "
                             (when (and data (string-match "^.* \<" data))
                               (replace-regexp-in-string
                                " \<\\|\>" "" (match-string 0 data)))))
@@ -286,7 +285,26 @@ Special commands:
       (message "`%s' bookmarked" name)
       (bookmark-bmenu-surreptitiously-rebuild-list)
       (addressbook-maybe-save-bookmark))))
-      
+
+;;;###autoload
+(defun addressbook-gnus-sum-bookmark ()
+  "Record an addressbook bookmark from a gnus summary buffer."
+  (interactive)
+  (addressbook--bookmark-from-mail (aref (gnus-summary-article-header
+                                         (cdr gnus-article-current)) 2)))
+
+(defun addressbook-get-mu4e-from-field ()
+  "Return from field contents from a mu4e buffer."
+  (let* ((msg  (mu4e-message-at-point))
+         (from (plist-get msg :from)))
+    (format "%s <%s>" (caar from) (cdar from))))
+
+;;;###autoload
+(defun addressbook-mu4e-bookmark ()
+  (interactive)
+  (addressbook--bookmark-from-mail
+   (addressbook-get-mu4e-from-field)))
+
 (defun addressbook-bookmark-edit (bookmark)
   "Edit an addressbook bookmark entry."
   (let* ((old-name       (car bookmark))
@@ -322,6 +340,7 @@ Special commands:
     (addressbook-bookmark-edit bmk)
     (revert-buffer)))
 
+;;;###autoload
 (defun addressbook-bmenu-edit ()
   "Edit an addresbook bookmark entry from bmenu list."
   (interactive)
@@ -419,6 +438,7 @@ http://julien.danjou.info/google-maps-el.html."
             (message "No address known for this contact")))
       (message "Google maps not available.")))
 
+;;;###autoload
 (defun addressbook-bookmark-jump (bookmark)
   "Default handler to jump to an addressbook bookmark."
   (let ((buf (save-window-excursion

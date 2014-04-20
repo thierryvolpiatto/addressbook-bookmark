@@ -1,4 +1,4 @@
-;;; addressbook-bookmark.el --- An adress book based on Standard Emacs bookmarks.
+;;; addressbook-bookmark.el --- An address book based on Standard Emacs bookmarks.
 
 ;; Author: Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; Copyright (C) 2009~2014 Thierry Volpiatto, all rights reserved.

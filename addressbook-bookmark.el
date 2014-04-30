@@ -79,10 +79,10 @@ Special commands:
         (name-list (save-excursion
                      (goto-char (point-min))
                      (cl-loop while (re-search-forward "^Name:" nil t)
-                              collect (car (addressbook-get-contact-data))))))
+                           collect (car (addressbook-get-contact-data))))))
     (erase-buffer)
     (cl-loop for name in name-list
-             do (save-excursion (addressbook-pp-info name t)))
+          do (save-excursion (addressbook-pp-info name t)))
     (goto-char (point-min))
     (search-forward cur-name nil t) (forward-line 0)))
 
@@ -336,9 +336,17 @@ Special commands:
 (defun addressbook-edit ()
   "Edit contact from addressbook buffer."
   (interactive)
-  (let ((bmk (addressbook-get-contact-data)))
-    (addressbook-bookmark-edit bmk)
-    (revert-buffer)))
+  (let ((bmk (addressbook-get-contact-data))
+        data beg end
+        (inhibit-read-only t))
+    (setq data (addressbook-bookmark-edit bmk))
+    (when data
+      (save-excursion
+        (addressbook--goto-name)
+        (setq beg (point)
+              end (+ beg 5))
+        (set-text-properties beg end `(name ,(car data)))
+        (revert-buffer)))))
 
 ;;;###autoload
 (defun addressbook-bmenu-edit ()
@@ -386,7 +394,9 @@ Special commands:
         (forward-line 1) (delete-region (point) (point-max)))
     ;; Dont append entry if already there.
     (unless (save-excursion (goto-char (point-min)) (search-forward name nil t))
-      (insert (concat (propertize "Name:" 'face '((:underline t)))
+      (insert (concat (propertize "Name:"
+                                  'face '((:underline t))
+                                  'name name)
                       "    " name))
       (when image (insert-image image))
       (insert "\n"
@@ -412,16 +422,16 @@ Special commands:
       (addressbook-mode)
       (setq buffer-read-only t))))
 
+(defun addressbook--goto-name ()
+  (search-backward addressbook-separator nil t)
+  (search-forward "Name: " nil t)
+  (forward-line 0))
+  
 (defun addressbook-get-contact-data ()
   "Get bookmark entry of contact at point in addressbook buffer."
-  (with-current-buffer "*addressbook*"
-    (search-backward addressbook-separator nil t)
-    (search-forward "Name: " nil t)
-    (skip-chars-forward " " (point-at-eol))
-    (assoc
-     (replace-regexp-in-string ; For entry with image.
-      " $" "" (buffer-substring (point) (point-at-eol)))
-     bookmark-alist)))
+  (save-excursion
+    (addressbook--goto-name)
+    (assoc (get-text-property (1+ (point-at-bol)) 'name) bookmark-alist)))
 
 (defun addressbook-google-map (&optional bookmark)
   "Show a google map for this address.

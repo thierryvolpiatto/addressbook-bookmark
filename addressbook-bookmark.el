@@ -345,8 +345,8 @@ Special commands:
         (addressbook--goto-name)
         (setq beg (point)
               end (+ beg 5))
-        (set-text-properties beg end `(name ,(car data)))
-        (revert-buffer)))))
+        (set-text-properties beg end `(name ,(car data))))
+      (revert-buffer))))
 
 ;;;###autoload
 (defun addressbook-bmenu-edit ()

@@ -117,7 +117,7 @@ Special commands:
     (goto-char (point-min))
     (save-excursion
       (if cc
-          (message-goto-cc)
+          (if (eq cc 'bcc) (message-goto-bcc) (message-goto-cc))
           (or (search-forward "To: " nil t)
               (search-forward "Newsgroups: " nil t)))
       (end-of-line)

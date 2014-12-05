@@ -192,7 +192,9 @@ Special commands:
                                         &optional nvisit)
   "Build an addressbook bookmark entry."
   `(,name
-    ,@(bookmark-make-record-default 'no-file 'no-context 0 nvisit)
+    ,@(if (featurep 'bookmark-extensions)
+          (bookmark-make-record-default 'no-file 'no-context 0 nvisit)
+          (bookmark-make-record-default 'no-file 'no-context 0))
     (type . "addressbook")
     (location . "Addressbook entry")
     (image . ,image-path)

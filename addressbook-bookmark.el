@@ -246,7 +246,7 @@ Special commands:
                    (push new-entry bookmark-alist)))
              (bookmark-bmenu-surreptitiously-rebuild-list)
              (addressbook-maybe-save-bookmark)
-             (incf count)
+             (cl-incf count)
              (if (y-or-n-p (format "`%s' Recorded. Add a new contact? " name))
                  (record)
                  (message "%d Contact(s) added." count)))))

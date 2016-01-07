@@ -188,7 +188,7 @@ Special commands:
     (goto-char (point-min)) (search-forward "Subject: " nil t)))
 
 (defun addressbook-bookmark-make-entry (name email phone
-                                        web street zipcode city image-path
+                                        web street city state zipcode country note image-path
                                         &optional nvisit)
   "Build an addressbook bookmark entry."
   `(,name
@@ -202,8 +202,11 @@ Special commands:
     (phone . ,phone)
     (web . ,web)
     (street . ,street)
-    (zipcode . ,zipcode)
     (city . ,city)
+    (state . ,state)
+    (zipcode . ,zipcode)
+    (country . ,country)
+    (note . ,note)
     (handler . addressbook-bookmark-jump)))
 
 (defun addressbook-read-name (prompt)
@@ -230,19 +233,22 @@ Special commands:
                  (phone      (addressbook-read-name "Phone: "))
                  (web        (addressbook-read-name "Web: "))
                  (street     (read-string "Street: "))
-                 (zipcode    (read-string "Zipcode: "))
                  (city       (read-string "City: "))
+                 (state      (read-string "State: "))
+                 (zipcode    (read-string "Zipcode: "))
+                 (country    (read-string "Country: "))
+                 (note       (read-string "Note: "))
                  (image-path (read-string "Image path: ")))
                
              (bookmark-maybe-load-default-file)
              (let ((old-entry (assoc name bookmark-alist))
                    (new-entry (addressbook-bookmark-make-entry
-                               name email phone web street zipcode city image-path))) 
+                               name email phone web street city state zipcode country note image-path))) 
                (if (and old-entry
                         (string= (assoc-default 'type old-entry) "addressbook"))
                    (setf (cdr old-entry)
                          (cdr (addressbook-bookmark-make-entry
-                               name email phone web street zipcode city image-path)))
+                               name email phone web street city state zipcode country note image-path)))
                    (push new-entry bookmark-alist)))
              (bookmark-bmenu-surreptitiously-rebuild-list)
              (addressbook-maybe-save-bookmark)
@@ -316,6 +322,9 @@ Special commands:
          (old-street     (assoc-default 'street bookmark))
          (old-zipcode    (assoc-default 'zipcode bookmark))
          (old-city       (assoc-default 'city bookmark))
+         (old-state      (assoc-default 'state bookmark))
+         (old-country    (assoc-default 'country bookmark))
+         (old-note       (assoc-default 'note bookmark))
          (old-visit      (assoc-default 'visits bookmark))
          (old-image-path (assoc-default 'image bookmark))
          (name           (read-string "Name: " old-name))
@@ -323,12 +332,15 @@ Special commands:
          (phone          (read-string "Phone: " old-phone))
          (web            (read-string "Web: " old-web))
          (street         (read-string "Street: " old-street))
-         (zipcode        (read-string "Zipcode: " old-zipcode))
          (city           (read-string "City: " old-city))
+         (state          (read-string "State: " old-state))
+         (zipcode        (read-string "Zipcode: " old-zipcode))
+         (country        (read-string "Country: " old-country))
+         (note           (read-string "Note: " old-note))
          (image-path     (read-string "Image path: " old-image-path))
          (new-entry      (addressbook-bookmark-make-entry
-                          name mail phone web street
-                          zipcode city image-path old-visit)))
+                          name mail phone web street city state
+                          zipcode country note image-path old-visit)))
     (when (y-or-n-p "Save changes? ")
       (setcar bookmark name)
       (setcdr bookmark (cdr new-entry))
@@ -375,6 +387,9 @@ Special commands:
          (web               (assoc-default 'web data))
          (street            (assoc-default 'street data))
          (zipcode           (assoc-default 'zipcode data))
+         (state             (assoc-default 'state data))
+         (country           (assoc-default 'country data))
+         (note              (assoc-default 'note data))
          (city              (assoc-default 'city data))
          (image-path        (assoc-default 'image data))
          (image             (unless (or (not image-path)
@@ -414,14 +429,24 @@ Special commands:
               (if (string= street "") ""
                   (concat (propertize "Street:" 'face '((:underline t)))
                           "  " street "\n"))
-              (if (string= zipcode "") ""
-                  (concat (propertize "Zipcode:" 'face '((:underline t)))
-                          " " zipcode "\n"))
               (if (string= city "") ""
                   (concat (propertize "City:" 'face '((:underline t)))
                           "    " city "\n"))
+              (if (string= state "") ""
+                  (concat (propertize "State:" 'face '((:underline t)))
+                          "   " state "\n"))
+              (if (string= zipcode "") ""
+                  (concat (propertize "Zipcode:" 'face '((:underline t)))
+                          " " zipcode "\n"))
+              (if (string= country "") ""
+                  (concat (propertize "Country:" 'face '((:underline t)))
+                          " " country "\n"))
+              (if (string= note "") ""
+                  (concat (propertize "Note:" 'face '((:underline t)))
+                          "    " note "\n"))
               addressbook-separator "\n")
       (addressbook-mode)
+      (setq show-trailing-whitespace nil)
       (setq buffer-read-only t))))
 
 (defun addressbook--goto-name ()
@@ -443,10 +468,12 @@ http://julien.danjou.info/google-maps-el.html."
   (if (fboundp 'google-maps)
       (let* ((bmk     (or bookmark (addressbook-get-contact-data)))
              (street  (assoc-default 'street bmk))
+             (city    (assoc-default 'city bmk))
              (zipcode (assoc-default 'zipcode bmk))
-             (city    (assoc-default 'city bmk)))
+             (state   (assoc-default 'state bmk))
+             (country (assoc-default 'country bmk)))
         (if (not (string= city "")) ; We need at least a city name.
-            (google-maps (concat street " " zipcode " " city))
+            (google-maps (concat street " " city " " state " " zipcode " " country))
             (message "No address known for this contact")))
       (message "Google maps not available.")))
 

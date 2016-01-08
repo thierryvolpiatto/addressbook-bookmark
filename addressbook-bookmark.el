@@ -32,6 +32,8 @@
 (require 'message)
 (eval-when-compile (require 'gnus-sum))
 
+(declare-function mu4e-message-at-point "ext:mu4e-message.el")
+
 (defgroup addressbook-bookmark nil
   "An addressbook linked to bookmarks."
   :prefix "addressbook-"
@@ -193,13 +195,10 @@ Special commands:
     (goto-char (point-min)) (search-forward "Subject: " nil t)))
 
 (defun addressbook-bookmark-make-entry (name email phone
-                                        web street city state zipcode country note image-path
-                                        &optional nvisit)
+                                        web street city state zipcode country note image-path)
   "Build an addressbook bookmark entry."
   `(,name
-    ,@(if (featurep 'bookmark-extensions)
-          (bookmark-make-record-default 'no-file 'no-context 0 nvisit)
-          (bookmark-make-record-default 'no-file 'no-context 0))
+    ,@(bookmark-make-record-default 'no-file 'no-context 0)
     (type . "addressbook")
     (location . "Addressbook entry")
     (image . ,image-path)
@@ -330,7 +329,6 @@ Special commands:
          (old-state      (assoc-default 'state bookmark))
          (old-country    (assoc-default 'country bookmark))
          (old-note       (assoc-default 'note bookmark))
-         (old-visit      (assoc-default 'visits bookmark))
          (old-image-path (assoc-default 'image bookmark))
          (name           (read-string "Name: " old-name))
          (mail           (read-string "Mail: " old-mail))
@@ -345,7 +343,7 @@ Special commands:
          (image-path     (read-string "Image path: " old-image-path))
          (new-entry      (addressbook-bookmark-make-entry
                           name mail phone web street city state
-                          zipcode country note image-path old-visit)))
+                          zipcode country note image-path)))
     (when (y-or-n-p "Save changes? ")
       (setcar bookmark name)
       (setcdr bookmark (cdr new-entry))

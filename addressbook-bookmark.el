@@ -281,7 +281,7 @@ Special commands:
                                 data)))
          (old-entry (assoc name bookmark-alist))
          (new-entry (addressbook-bookmark-make-entry
-                     name mail "" "" "" "" "" "")))
+                     name mail "" "" "" "" "" "" "" "" "")))
     (when data
       (if (and old-entry
                (string= (assoc-default 'type old-entry) "addressbook"))
@@ -291,7 +291,7 @@ Special commands:
                                   (list mail)))
                  (mail-str (mapconcat 'identity new-mail-ls ", ")))
             (setq new-entry (addressbook-bookmark-make-entry
-                             name mail-str "" "" "" "" "" ""))
+                             name mail-str "" "" "" "" "" "" "" "" ""))
             (setf (cdr old-entry)
                   (cdr new-entry)))
           (push new-entry bookmark-alist))

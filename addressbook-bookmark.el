@@ -45,6 +45,11 @@
   :group 'addressbook-bookmark
   :type 'string)
 
+(defcustom addressbook-align-image nil
+  "If true, images will be padded to the margin"
+  :group 'addressbook-bookmark
+  :type 'boolean)
+
 ;;; Faces
 (defface abook-separator
     '((t (:foreground "red")))
@@ -415,7 +420,13 @@ Special commands:
                                   'face '((:underline t))
                                   'name name)
                       "    " name))
-      (when image (insert-image image))
+      (when image
+        (if addressbook-align-image
+            (let* ((imgwidth (ceiling (car (image-size image))))
+                   (padwidth (- (frame-width) imgwidth (current-column))))
+              (if (> padwidth 0)
+                  (insert (make-string padwidth ?\s)))))
+        (insert-image image))
       (insert "\n"
               (if (string= mail "") ""
                   (concat (propertize "Mail:" 'face '((:underline t)))

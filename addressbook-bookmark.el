@@ -380,7 +380,7 @@ Special commands:
       (while (not (string= (car new-entry) (bookmark-bmenu-bookmark)))
         (forward-line 1))
       (forward-line 0)
-      (bookmark-bmenu-check-position))))
+      (bookmark-bmenu-ensure-position))))
 
 (defun addressbook-pp-info (name &optional append)
   "Print addressbook entries to an addressbook buffer."

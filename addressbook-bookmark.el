@@ -180,11 +180,10 @@ Special commands:
 
 (defun addressbook-message-complete ()
   "Provide addressbook completion for `message-mode'."
-  (let* ((ls        (addressbook-alist-only))
-         (names     (cl-loop for l in ls collect (car l)))
-         (alist     (cl-loop for m in ls collect
-                          (cons (car m) (assoc-default 'email m))))
-         (cand      (completing-read "Name: " names nil t
+  (let* ((alist     (cl-loop for m in (addressbook-alist-only)
+                             collect
+                             (cons (car m) (assoc-default 'email m))))
+         (cand      (completing-read "Name: " alist nil t
                                      (thing-at-point 'symbol)))
          (mail-list (split-string (assoc-default cand alist) " ?, ?")))
     (end-of-line)

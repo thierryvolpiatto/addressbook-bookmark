@@ -103,7 +103,8 @@ Special commands:
   "Setup a mail buffer with BOOKMARK-NAME email using `message-mode'."
   (bookmark-maybe-load-default-file)
   (let ((mail-list ())
-        (mail-bufs (message-buffers)))
+        (mail-bufs (message-buffers))
+        len-head)
     (setq mail-list
           (if (eq major-mode 'addressbook-mode)
                 (split-string
@@ -128,6 +129,7 @@ Special commands:
           (or (search-forward "To: " nil t)
               (search-forward "Newsgroups: " nil t)))
       (end-of-line)
+      (setq len-head (- (point) (point-at-bol)))
       (let ((email (if (> (length mail-list) 1)
                        (completing-read "Choose mail: " mail-list nil t)
                        (car mail-list))))
@@ -136,7 +138,7 @@ Special commands:
               (message-next-header)
               (forward-line -1)
               (end-of-line)
-              (insert (concat ",\n    " email)))
+              (insert (concat ",\n" (make-string len-head ? ) email)))
             (insert email))))
     (search-forward "Subject: ")))
 

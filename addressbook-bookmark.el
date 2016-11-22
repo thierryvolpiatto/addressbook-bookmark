@@ -115,7 +115,7 @@ Special commands:
                 'email (assoc bookmark-name bookmark-alist)) " ?, ?")))
     (cond ((and (or cc append) mail-bufs) ; A mail buffer exists, use it.
            (pop-to-buffer
-            (if (and mail-bufs (> (length mail-bufs) 1))
+            (if (cdr mail-bufs)
                 (completing-read "MailBuffer: " mail-bufs nil t)
                 (car mail-bufs))))
           ((or cc append)                 ; No mail buffer found create one.
@@ -130,7 +130,7 @@ Special commands:
               (search-forward "Newsgroups: " nil t)))
       (end-of-line)
       (setq len-head (- (point) (point-at-bol)))
-      (let ((email (if (> (length mail-list) 1)
+      (let ((email (if (cdr mail-list)
                        (completing-read "Choose mail: " mail-list nil t)
                        (car mail-list))))
         (if append
@@ -190,7 +190,7 @@ Special commands:
          (mail-list (split-string (assoc-default cand alist) " ?, ?")))
     (end-of-line)
     (while (not (looking-back ": \\|," (point-at-bol))) (delete-char -1))
-    (insert (if (> (length mail-list) 1) ; Contact have more than one address.
+    (insert (if (cdr mail-list) ; Contact have more than one address.
                 (completing-read "Address: " mail-list nil t)
                 (car mail-list)))
     (goto-char (point-min)) (search-forward "Subject: " nil t)))
@@ -219,7 +219,7 @@ Special commands:
   (let ((var ()))
     (cl-labels ((multiread ()
                   (let ((str (read-string prompt))
-                        (sep (if (> (length var) 1) ", " "")))
+                        (sep (if (cdr var) ", " "")))
                     (if (string= str "")
                         (mapconcat 'identity (nreverse var) sep)
                         (push str var)

@@ -104,7 +104,8 @@ Special commands:
   (bookmark-maybe-load-default-file)
   (let ((mail-list ())
         (mail-bufs (message-buffers))
-        emails)
+        (header-regexp "\\([Tt]o:\\|[Cc]c:\\|[Bb]cc:\\|[Nn]ewsgroups:\\) ")
+        emails len)
     (setq mail-list
           (cond ((eq major-mode 'addressbook-mode)
                  (split-string
@@ -134,16 +135,18 @@ Special commands:
                        (car mail-list))))
         (when email
           (if (and append
-                   (not (looking-back
-                         "\\([Tt]o:\\|[Cc]c:\\|[Bb]cc:\\) "
-                         (point-at-bol))))
+                   (not (looking-back header-regexp (point-at-bol))))
               (progn
                 (message-next-header)
                 (forward-line -1)
+                (or (re-search-forward header-regexp (point-at-eol) t)
+                    (re-search-forward "^\\s-+" (point-at-eol) t))
+                (setq len (- (point) (point-at-bol)))
                 (end-of-line)
-                (insert (concat ",\n   " email)))
+                (insert (concat ",\n" (make-string len ? ) email)))
               (insert email)))))
-    (search-forward "Subject: ")))
+    (search-forward "Subject: ")
+    (font-lock-fontify-buffer)))
 
 (defun addressbook-set-mail-buffer (append)
   "Prepare email buffer with `message-mode' from addressbook buffer."

@@ -63,6 +63,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q")       'addressbook-quit)
     (define-key map (kbd "m")       'addressbook-set-mail-buffer)
+    (define-key map (kbd "M")       'addressbook-set-mail-buffer-for-all)
     (define-key map (kbd "e")       'addressbook-edit)
     (define-key map (kbd "C-c C-c") 'addressbook-set-mail-buffer)
     (define-key map (kbd "C-c f c") 'addressbook-set-mail-buffer-and-cc)
@@ -157,6 +158,15 @@ Special commands:
   "Add a cc field to a mail buffer for this bookmark."
   (interactive "P")
   (addressbook-set-mail-buffer-1 nil append 'cc))
+
+(defun addressbook-set-mail-buffer-for-all ()
+  (interactive)
+  (with-current-buffer "*addressbook*"
+    (save-excursion
+      (goto-char (point-min))
+      (cl-loop while (search-forward "Name: " nil t)
+               do (save-selected-window
+                    (addressbook-set-mail-buffer-1 nil t))))))
 
 ;;; Completion in message buffer with TAB.
 ;;

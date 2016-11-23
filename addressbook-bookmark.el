@@ -34,6 +34,8 @@
 
 (declare-function mu4e-message-at-point "ext:mu4e-message.el")
 
+(defconst addressbook-buffer-name "*addressbook*")
+
 (defgroup addressbook-bookmark nil
   "An addressbook linked to bookmarks."
   :prefix "addressbook-"
@@ -97,7 +99,7 @@ Special commands:
 (defun addressbook-quit ()
   "Quit addressbook buffer."
   (interactive)
-  (with-current-buffer "*addressbook*"
+  (with-current-buffer addressbook-buffer-name
     (quit-window)))
 
 (defun addressbook-set-mail-buffer-1 (&optional bookmark-name append cc)
@@ -161,7 +163,7 @@ Special commands:
 
 (defun addressbook-set-mail-buffer-for-all ()
   (interactive)
-  (with-current-buffer "*addressbook*"
+  (with-current-buffer addressbook-buffer-name
     (save-excursion
       (goto-char (point-min))
       (cl-loop while (search-forward "Name: " nil t)
@@ -401,7 +403,7 @@ Special commands:
   "Print addressbook entries to an addressbook buffer."
   (bookmark-maybe-load-default-file)
   (let* ((data              (assoc name bookmark-alist))
-         (buf               (get-buffer-create "*addressbook*"))
+         (buf               (get-buffer-create addressbook-buffer-name))
          (mail              (assoc-default 'email data))
          (phone             (assoc-default 'phone data))
          (web               (assoc-default 'web data))

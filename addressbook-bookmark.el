@@ -34,6 +34,8 @@
 
 (declare-function mu4e-message-at-point "ext:mu4e-message.el")
 
+(defconst addressbook-buffer-name "*addressbook*")
+
 (defgroup addressbook-bookmark nil
   "An addressbook linked to bookmarks."
   :prefix "addressbook-"
@@ -63,6 +65,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "q")       'addressbook-quit)
     (define-key map (kbd "m")       'addressbook-set-mail-buffer)
+    (define-key map (kbd "M")       'addressbook-set-mail-buffer-for-all)
     (define-key map (kbd "e")       'addressbook-edit)
     (define-key map (kbd "C-c C-c") 'addressbook-set-mail-buffer)
     (define-key map (kbd "C-c f c") 'addressbook-set-mail-buffer-and-cc)
@@ -96,7 +99,7 @@ Special commands:
 (defun addressbook-quit ()
   "Quit addressbook buffer."
   (interactive)
-  (with-current-buffer "*addressbook*"
+  (with-current-buffer addressbook-buffer-name
     (quit-window)))
 
 (defun addressbook-set-mail-buffer-1 (&optional bookmark-name append cc)
@@ -104,23 +107,24 @@ Special commands:
   (bookmark-maybe-load-default-file)
   (let ((mail-list ())
         (mail-bufs (message-buffers))
-        len-head)
+        (header-regexp "\\([Tt]o:\\|[Cc]c:\\|[Bb]cc:\\|[Nn]ewsgroups:\\) ")
+        emails len)
     (setq mail-list
-          (if (eq major-mode 'addressbook-mode)
-                (split-string
-                 (assoc-default
-                  'email (addressbook-get-contact-data)) " ?, ?")
-              (split-string
-               (assoc-default
-                'email (assoc bookmark-name bookmark-alist)) " ?, ?")))
+          (cond ((eq major-mode 'addressbook-mode)
+                 (split-string
+                  (assoc-default
+                   'email (addressbook-get-contact-data)) " ?, ?"))
+                ((and bookmark-name
+                      (setq emails (assoc-default
+                                    'email (assoc bookmark-name bookmark-alist))))
+                 (split-string emails " ?, ?"))
+                (t (error "No contact found to set mail buffer"))))
     (cond ((and (or cc append) mail-bufs) ; A mail buffer exists, use it.
            (pop-to-buffer
             (if (cdr mail-bufs)
                 (completing-read "MailBuffer: " mail-bufs nil t)
                 (car mail-bufs))))
-          ((or cc append)                 ; No mail buffer found create one.
-           (compose-mail nil nil nil nil 'switch-to-buffer-other-window))
-          (t                              ; create a new mail buffer.
+          (t                        ; No mail buffer found create one.
            (compose-mail nil nil nil nil 'switch-to-buffer-other-window)))
     (goto-char (point-min))
     (save-excursion
@@ -129,18 +133,23 @@ Special commands:
           (or (search-forward "To: " nil t)
               (search-forward "Newsgroups: " nil t)))
       (end-of-line)
-      (setq len-head (- (point) (point-at-bol)))
       (let ((email (if (cdr mail-list)
                        (completing-read "Choose mail: " mail-list nil t)
                        (car mail-list))))
-        (if append
-            (progn
-              (message-next-header)
-              (forward-line -1)
-              (end-of-line)
-              (insert (concat ",\n" (make-string len-head ? ) email)))
-            (insert email))))
-    (search-forward "Subject: ")))
+        (when email
+          (if (and append
+                   (not (looking-back header-regexp (point-at-bol))))
+              (progn
+                (message-next-header)
+                (forward-line -1)
+                (or (re-search-forward header-regexp (point-at-eol) t)
+                    (re-search-forward "^\\s-+" (point-at-eol) t))
+                (setq len (- (point) (point-at-bol)))
+                (end-of-line)
+                (insert (concat ",\n" (make-string len ? ) email)))
+              (insert email)))))
+    (search-forward "Subject: ")
+    (font-lock-fontify-buffer)))
 
 (defun addressbook-set-mail-buffer (append)
   "Prepare email buffer with `message-mode' from addressbook buffer."
@@ -151,6 +160,15 @@ Special commands:
   "Add a cc field to a mail buffer for this bookmark."
   (interactive "P")
   (addressbook-set-mail-buffer-1 nil append 'cc))
+
+(defun addressbook-set-mail-buffer-for-all ()
+  (interactive)
+  (with-current-buffer addressbook-buffer-name
+    (save-excursion
+      (goto-char (point-min))
+      (cl-loop while (search-forward "Name: " nil t)
+               do (save-selected-window
+                    (addressbook-set-mail-buffer-1 nil t))))))
 
 ;;; Completion in message buffer with TAB.
 ;;
@@ -385,7 +403,7 @@ Special commands:
   "Print addressbook entries to an addressbook buffer."
   (bookmark-maybe-load-default-file)
   (let* ((data              (assoc name bookmark-alist))
-         (buf               (get-buffer-create "*addressbook*"))
+         (buf               (get-buffer-create addressbook-buffer-name))
          (mail              (assoc-default 'email data))
          (phone             (assoc-default 'phone data))
          (web               (assoc-default 'web data))

@@ -208,7 +208,7 @@ Special commands:
          (mail-list (split-string (assoc-default cand alist) " ?, ?")))
     (end-of-line)
     (while (not (looking-back ": \\|," (point-at-bol))) (delete-char -1))
-    (insert (if (> (length mail-list) 1) ; Contact have more than one address.
+    (insert (if (cdr mail-list) ; Contact have more than one address.
                 (completing-read "Address: " mail-list nil t)
                 (car mail-list)))
     (goto-char (point-min)) (search-forward "Subject: " nil t)))
@@ -238,7 +238,7 @@ Special commands:
   (let ((var ()))
     (cl-labels ((multiread ()
                   (let ((str (read-string prompt))
-                        (sep (if (> (length var) 1) ", " "")))
+                        (sep (if (cdr var) ", " "")))
                     (if (string= str "")
                         (mapconcat 'identity (nreverse var) sep)
                         (push str var)

@@ -246,13 +246,14 @@ Special commands:
       (multiread))))
 
 ;;;###autoload
-(defun addressbook-bookmark-set ()
-  "Record addressbook bookmark entries interactively."
-  (interactive)
+(defun addressbook-bookmark-set-1 (&optional contact)
+  "Add contact repetitively until user say no.
+
+When CONTACT arg is provided add only contact CONTACT and exit."
   (let ((count 0))
     (cl-labels
         ((record ()
-           (let ((name       (read-string "Name: "))
+           (let ((name       (or contact (read-string "Name: ")))
                  (group      (addressbook-read-name "Group: "))
                  (email      (addressbook-read-name "Mail: "))
                  (phone      (addressbook-read-name "Phone: "))
@@ -278,10 +279,16 @@ Special commands:
              (bookmark-bmenu-surreptitiously-rebuild-list)
              (addressbook-maybe-save-bookmark)
              (cl-incf count)
-             (if (y-or-n-p (format "`%s' Recorded. Add a new contact? " name))
+             (if (and (null contact)
+                      (y-or-n-p (format "`%s' Recorded. Add a new contact? " name)))
                  (record)
                  (message "%d Contact(s) added." count)))))
       (record))))
+
+(defun addressbook-bookmark-set ()
+  "Record addressbook bookmark entries interactively."
+  (interactive)
+  (addressbook-bookmark-set-1))
 
 (defun addressbook-maybe-save-bookmark ()
   "Increment save counter and maybe save `bookmark-alist'."

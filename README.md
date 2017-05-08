@@ -10,8 +10,7 @@ It provide completion on contacts in `message-mode` buffers,
 a special mode to display contacts with address, phone etc...
 If you have installed [google-maps](http://julien.danjou.info/google-maps-el.html)
 you can switch to google map based on address of your contact.
-It is fully compatible with [helm](https://github.com/emacs-helm/helm)
-See `helm-filtered-bookmarks` and turn on `helm-mode` to have [helm](https://github.com/emacs-helm/helm) completion in message buffers.
+It is fully compatible with [helm](https://github.com/emacs-helm/helm).
 
 ## Installation
 
@@ -39,7 +38,7 @@ Find a contact:
 
 If you use [helm](https://github.com/emacs-helm/helm):
 
-M-x `helm-filtered-bookmarks`
+M-x `helm-addressbook-bookmarks`
 
 Otherwise:
 

@@ -342,6 +342,7 @@ When CONTACT arg is provided add only contact CONTACT and exit."
 
 ;;;###autoload
 (defun addressbook-mu4e-bookmark ()
+  "Record an addressbook bookmark from a mu4e view buffer."
   (interactive)
   (addressbook--bookmark-from-mail
    (addressbook-get-mu4e-from-field)))

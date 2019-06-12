@@ -70,6 +70,7 @@
     (define-key map (kbd "C-c C-c") 'addressbook-set-mail-buffer)
     (define-key map (kbd "C-c f c") 'addressbook-set-mail-buffer-and-cc)
     (define-key map (kbd "r")       'addressbook-bookmark-set)
+    (define-key map (kbd "s")       'bookmark-save)
     (define-key map (kbd "C-c g m") 'addressbook-google-map)
     map))
 

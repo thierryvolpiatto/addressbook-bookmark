@@ -30,9 +30,9 @@
 (require 'derived)
 (require 'bookmark)
 (require 'message)
-(eval-when-compile (require 'gnus-sum))
 
 (declare-function mu4e-message-at-point "ext:mu4e-message.el")
+(declare-function gnus-summary-article-header "gnus-sum.el")
 
 (defconst addressbook-buffer-name "*addressbook*")
 
@@ -332,6 +332,7 @@ When CONTACT arg is provided add only contact CONTACT and exit."
 (defun addressbook-gnus-sum-bookmark ()
   "Record an addressbook bookmark from a gnus summary buffer."
   (interactive)
+  (require 'gnus-sum)
   (addressbook--bookmark-from-mail (aref (gnus-summary-article-header
                                          (cdr gnus-article-current)) 2)))
 

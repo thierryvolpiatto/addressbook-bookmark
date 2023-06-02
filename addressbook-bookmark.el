@@ -71,7 +71,7 @@
     (define-key map (kbd "C-c f c") 'addressbook-set-mail-buffer-and-cc)
     (define-key map (kbd "r")       'addressbook-bookmark-set)
     (define-key map (kbd "s")       'bookmark-save)
-    (define-key map (kbd "C-c g m") 'addressbook-google-map)
+    (define-key map (kbd "M")       'addressbook-goto-map)
     map))
 
 (define-derived-mode addressbook-mode
@@ -507,22 +507,22 @@ When CONTACT arg is provided add only contact CONTACT and exit."
     (addressbook--goto-name)
     (assoc (get-text-property (1+ (point-at-bol)) 'name) bookmark-alist)))
 
-(defun addressbook-google-map (&optional bookmark)
-  "Show a google map for this address.
-This use `google-maps' you can find here:
-http://julien.danjou.info/google-maps-el.html."
+(defun addressbook-goto-map (&optional bookmark)
+  "Show an open street map for this address.
+Needs `osm' package as dependency."
   (interactive)
-  (if (fboundp 'google-maps)
+  (if (require 'osm nil t)
       (let* ((bmk     (or bookmark (addressbook-get-contact-data)))
              (street  (assoc-default 'street bmk))
              (city    (assoc-default 'city bmk))
              (zipcode (assoc-default 'zipcode bmk))
              (state   (assoc-default 'state bmk))
-             (country (assoc-default 'country bmk)))
+             (country (assoc-default 'country bmk))
+             (osm-server 'default))
         (if (not (string= city "")) ; We need at least a city name.
-            (google-maps (concat street " " city " " state " " zipcode " " country))
-            (message "No address known for this contact")))
-      (message "Google maps not available.")))
+            (osm-search (concat street " " city " " state " " zipcode " " country))
+          (message "No address known for this contact")))
+      (message "Osm maps not available.")))
 
 ;;;###autoload
 (defun addressbook-bookmark-jump (bookmark)

@@ -1,4 +1,4 @@
-;;; addressbook-bookmark.el --- An address book based on Standard Emacs bookmarks.
+;;; addressbook-bookmark.el --- An address book based on Standard Emacs bookmarks. -*- lexical-binding: t -*-
 
 ;; Author: Thierry Volpiatto <thierry.volpiatto@gmail.com>
 ;; Copyright (C) 2009~2014 Thierry Volpiatto, all rights reserved.
@@ -33,6 +33,10 @@
 
 (declare-function mu4e-message-at-point "ext:mu4e-message.el")
 (declare-function gnus-summary-article-header "gnus-sum.el")
+(declare-function osm-search "ext:osm.el")
+
+(defvar osm-server)
+(defvar gnus-article-current)
 
 (defconst addressbook-buffer-name "*addressbook*")
 
@@ -83,7 +87,7 @@ Special commands:
     (set (make-local-variable 'revert-buffer-function)
          #'addressbook-mode-revert))
 
-(defun addressbook-mode-revert (&optional revert-auto no-confirm)
+(defun addressbook-mode-revert (&optional _revert-auto _no-confirm)
   (interactive)
   (let ((inhibit-read-only t)
         (cur-name (car (addressbook-get-contact-data)))
@@ -150,7 +154,7 @@ Special commands:
                 (insert (concat ",\n" (make-string len ? ) email)))
               (insert email)))))
     (search-forward "Subject: ")
-    (font-lock-fontify-buffer)))
+    (font-lock-ensure)))
 
 (defun addressbook-set-mail-buffer (append)
   "Prepare email buffer with `message-mode' from addressbook buffer."

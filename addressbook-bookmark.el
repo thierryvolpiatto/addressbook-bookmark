@@ -131,30 +131,32 @@ Special commands:
                 (car mail-bufs))))
           (t                        ; No mail buffer found create one.
            (compose-mail nil nil nil nil 'switch-to-buffer-other-window)))
-    (goto-char (point-min))
-    (save-excursion
-      (if cc
-          (if (eq cc 'bcc) (message-goto-bcc) (message-goto-cc))
-          (or (search-forward "To: " nil t)
-              (search-forward "Newsgroups: " nil t)))
-      (end-of-line)
-      (let ((email (if (cdr mail-list)
-                       (completing-read "Choose mail: " mail-list nil t)
-                       (car mail-list))))
-        (when email
-          (if (and append
-                   (not (looking-back header-regexp (point-at-bol))))
-              (progn
-                (message-next-header)
-                (forward-line -1)
-                (or (re-search-forward header-regexp (point-at-eol) t)
-                    (re-search-forward "^\\s-+" (point-at-eol) t))
-                (setq len (- (point) (point-at-bol)))
-                (end-of-line)
-                (insert (concat ",\n" (make-string len ? ) email)))
-              (insert email)))))
-    (search-forward "Subject: ")
-    (font-lock-ensure)))
+    (when-let ((message-bufs (message-buffers)))
+      (with-current-buffer (car message-bufs) 
+        (goto-char (point-min))
+        (save-excursion
+          (if cc
+              (if (eq cc 'bcc) (message-goto-bcc) (message-goto-cc))
+            (or (search-forward "To: " nil t)
+                (search-forward "Newsgroups: " nil t)))
+          (end-of-line)
+          (let ((email (if (cdr mail-list)
+                           (completing-read "Choose mail: " mail-list nil t)
+                         (car mail-list))))
+            (when email
+              (if (and append
+                       (not (looking-back header-regexp (point-at-bol))))
+                  (progn
+                    (message-next-header)
+                    (forward-line -1)
+                    (or (re-search-forward header-regexp (point-at-eol) t)
+                        (re-search-forward "^\\s-+" (point-at-eol) t))
+                    (setq len (- (point) (point-at-bol)))
+                    (end-of-line)
+                    (insert (concat ",\n" (make-string len ? ) email)))
+                (insert email)))))
+        (search-forward "Subject: " nil t)
+        (font-lock-ensure)))))
 
 (defun addressbook-set-mail-buffer (append)
   "Prepare email buffer with `message-mode' from addressbook buffer."

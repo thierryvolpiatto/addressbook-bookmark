@@ -206,20 +206,32 @@ Special commands:
            collect b))
 
 (defun addressbook-message-complete ()
-  "Provide addressbook completion for `message-mode'."
-  (let* ((alist     (cl-loop for m in (addressbook-alist-only)
-                             for mail = (assoc-default 'email m)
-                             unless (string= mail "")
-                             collect (cons (car m) mail)))
-         (cand      (completing-read "Name: " alist nil t
-                                     (thing-at-point 'symbol)))
-         (mail-list (split-string (assoc-default cand alist) " ?, ?")))
-    (end-of-line)
-    (while (not (looking-back ": \\|," (point-at-bol))) (delete-char -1))
-    (insert (if (cdr mail-list) ; Contact have more than one address.
-                (completing-read "Address: " mail-list nil t)
-                (car mail-list)))
-    (goto-char (point-min)) (search-forward "Subject: " nil t)))
+  (let ((beg (save-excursion
+               (skip-chars-backward "^\n:,") (skip-chars-forward " \t")
+               (point)))
+        (end (save-excursion
+               (skip-chars-forward "^\n,") (skip-chars-backward " \t")
+               (point)))
+        (collection
+         (cl-loop for bmk in (addressbook-alist-only)
+                  for mail = (split-string (assoc-default 'email bmk) " ?, ?")
+                  for name = (car bmk)
+                  for trunc = (truncate-string-to-width name 22) 
+                  for sep = (make-string (1+ (- 22 (min 22 (length name)))) ? )
+                  unless (string= (car mail) "")
+                  append (mapcar
+                          (lambda (m)
+                            (format "<%s>%s%s" trunc sep
+                                    (propertize m 'face 'font-lock-doc-face)))
+                          mail))))
+    (when (< beg end)
+      (list beg end collection
+            :exit-function
+            (lambda (_str _status)
+              (save-excursion
+                (goto-char beg)
+                (when (re-search-forward "\\(<.*> +\\)\\(.*\\)" nil t)
+                  (replace-match "" nil t nil 1))))))))
 
 (defun addressbook-bookmark-make-entry (name group email phone
                                         web street city state zipcode country note image-path)

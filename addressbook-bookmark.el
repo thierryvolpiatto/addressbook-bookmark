@@ -221,7 +221,7 @@ Special commands:
                   unless (string= (car mail) "")
                   append (mapcar
                           (lambda (m)
-                            (format "<%s>%s%s" trunc sep
+                            (format "%s%s%s" trunc sep
                                     (propertize m 'face 'font-lock-doc-face)))
                           mail))))
     (when (< beg end)
@@ -230,7 +230,7 @@ Special commands:
             (lambda (_str _status)
               (save-excursion
                 (goto-char beg)
-                (when (re-search-forward "\\(<.*> +\\)\\(.*\\)" nil t)
+                (when (re-search-forward "\\(<?.*>? +\\)\\(.*\\)" nil t)
                   (replace-match "" nil t nil 1))))))))
 
 (defun addressbook-bookmark-make-entry (name group email phone

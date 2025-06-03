@@ -549,7 +549,7 @@ Needs `osm' package as dependency."
 ;;;###autoload
 (defun addressbook-bookmark-jump (bookmark)
   "Default handler to jump to an addressbook bookmark."
-  (let ((buf (save-window-excursion
+  (let ((buf (progn
                (if current-prefix-arg
                    (addressbook-pp-info (car bookmark) 'append)
                    (addressbook-pp-info (car bookmark)))

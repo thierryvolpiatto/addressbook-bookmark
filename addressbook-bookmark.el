@@ -462,11 +462,15 @@ When CONTACT arg is provided add only contact CONTACT and exit."
                 "\n\n" addressbook-separator "\n")))
     (if append
         (goto-char (point-max))
-        (goto-char (point-min))
-        (search-forward addressbook-separator)
-        (forward-line 1) (delete-region (point) (point-max)))
+      (goto-char (point-min)))
+    (unless append
+      (search-forward addressbook-separator)
+      (forward-line 1)
+      (delete-region (point) (point-max)))
     ;; Dont append entry if already there.
-    (unless (save-excursion (goto-char (point-min)) (search-forward name nil t))
+    (unless (save-excursion
+              (goto-char (point-min))
+              (re-search-forward (concat "^Name: +" (regexp-quote name)) nil t))
       (insert (concat (propertize "Name:"
                                   'face '((:underline t))
                                   'name name)

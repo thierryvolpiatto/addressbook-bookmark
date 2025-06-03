@@ -460,9 +460,7 @@ When CONTACT arg is provided add only contact CONTACT and exit."
         (insert (propertize (format "Addressbook %s" user)
                             'face '((:foreground "green" :underline t)))
                 "\n\n" addressbook-separator "\n")))
-    (if append
-        (goto-char (point-max))
-      (goto-char (point-min)))
+    (goto-char (if append (point-min) (point-max)))
     (unless append
       (search-forward addressbook-separator)
       (forward-line 1)

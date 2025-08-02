@@ -552,6 +552,28 @@ Needs `osm' package as dependency."
      `("" (buffer . ,buf) . ,(bookmark-get-bookmark-record bookmark)))))
 
 
+(defun addressbook-bookmark-p (bookmark)
+  "Return non--nil if BOOKMARK is a contact recorded with addressbook-bookmark.
+BOOKMARK is a bookmark name or a bookmark record."
+  (if (listp bookmark)
+      (string= (assoc-default 'type bookmark) "addressbook")
+    (string= (assoc-default 'type (assoc bookmark bookmark-alist))
+             "addressbook")))
+
+(defun addressbook-bookmark-filter-setup-alist ()
+  "Return a filtered `bookmark-alist' sorted alphabetically."
+  (cl-loop for b in (if (fboundp 'bookmark-maybe-sort-alist)
+                        (bookmark-maybe-sort-alist)
+                      bookmark-alist)
+           when (addressbook-bookmark-p b) collect b))
+
+;;;###autoload
+(defun addressbook-jump ()
+  (interactive)
+  (let* ((bookmark-alist (addressbook-bookmark-filter-setup-alist))
+         (bmk (completing-read "Jump to contact: " bookmark-alist nil t)))
+    (bookmark-jump bmk)))
+
 (provide 'addressbook-bookmark)
 
 ;; Local Variables:

@@ -452,19 +452,15 @@ When CONTACT arg is provided add only contact CONTACT and exit."
                                         (string= image-path "")
                                         (not (file-exists-p image-path)))
                               (create-image image-path)))
+         (user (capitalize (or user-login-name "unknown user")))
          (inhibit-read-only t))
     (set-buffer buf)
-    (unless (search-forward addressbook-separator nil t)
-      ;; Fixme what is (getenv "USER") on windows system?
-      (let ((user (or (getenv "USER") "Unknown user")))
-        (insert (propertize (format "Addressbook %s" user)
-                            'face '((:foreground "green" :underline t)))
-                "\n\n" addressbook-separator "\n")))
-    (goto-char (if append (point-min) (point-max)))
-    (unless append
-      (search-forward addressbook-separator)
-      (forward-line 1)
-      (delete-region (point) (point-max)))
+    (if append
+        (goto-char (point-max))
+      (erase-buffer)
+      (insert (propertize (format "Addressbook %s" user)
+                          'face '((:foreground "green" :underline t)))
+              "\n\n" addressbook-separator "\n"))
     ;; Dont append entry if already there.
     (unless (save-excursion
               (goto-char (point-min))
@@ -482,35 +478,35 @@ When CONTACT arg is provided add only contact CONTACT and exit."
         (insert-image image))
       (insert "\n"
               (if (string= group "") ""
-                  (concat (propertize "Group:" 'face '((:underline t)))
-                          "   " group "\n"))
+                (concat (propertize "Group:" 'face '((:underline t)))
+                        "   " group "\n"))
               (if (string= mail "") ""
-                  (concat (propertize "Mail:" 'face '((:underline t)))
-                          "    " mail "\n"))
+                (concat (propertize "Mail:" 'face '((:underline t)))
+                        "    " mail "\n"))
               (if (string= phone "") ""
-                  (concat (propertize "Phone:" 'face '((:underline t)))
-                          "   " phone "\n"))
+                (concat (propertize "Phone:" 'face '((:underline t)))
+                        "   " phone "\n"))
               (if (string= web "") ""
-                  (concat (propertize "Web:" 'face '((:underline t)))
-                          "     " web "\n"))
+                (concat (propertize "Web:" 'face '((:underline t)))
+                        "     " web "\n"))
               (if (string= street "") ""
-                  (concat (propertize "Street:" 'face '((:underline t)))
-                          "  " street "\n"))
+                (concat (propertize "Street:" 'face '((:underline t)))
+                        "  " street "\n"))
               (if (string= city "") ""
-                  (concat (propertize "City:" 'face '((:underline t)))
-                          "    " city "\n"))
+                (concat (propertize "City:" 'face '((:underline t)))
+                        "    " city "\n"))
               (if (string= state "") ""
-                  (concat (propertize "State:" 'face '((:underline t)))
-                          "   " state "\n"))
+                (concat (propertize "State:" 'face '((:underline t)))
+                        "   " state "\n"))
               (if (string= zipcode "") ""
-                  (concat (propertize "Zipcode:" 'face '((:underline t)))
-                          " " zipcode "\n"))
+                (concat (propertize "Zipcode:" 'face '((:underline t)))
+                        " " zipcode "\n"))
               (if (string= country "") ""
-                  (concat (propertize "Country:" 'face '((:underline t)))
-                          " " country "\n"))
+                (concat (propertize "Country:" 'face '((:underline t)))
+                        " " country "\n"))
               (if (string= note "") ""
-                  (concat (propertize "Note:" 'face '((:underline t)))
-                          "    " note "\n"))
+                (concat (propertize "Note:" 'face '((:underline t)))
+                        "    " note "\n"))
               addressbook-separator "\n")
       (addressbook-mode)
       (setq show-trailing-whitespace nil)

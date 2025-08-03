@@ -76,7 +76,7 @@
     (define-key map (kbd "C-c f c") 'addressbook-set-mail-buffer-and-cc)
     (define-key map (kbd "r")       'addressbook-bookmark-set)
     (define-key map (kbd "s")       'bookmark-save)
-    (define-key map (kbd "M")       'addressbook-goto-map)
+    (define-key map (kbd "C-c m")   'addressbook-goto-map)
     map))
 
 (define-derived-mode addressbook-mode

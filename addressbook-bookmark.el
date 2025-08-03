@@ -37,6 +37,7 @@
 
 (defvar osm-server)
 (defvar gnus-article-current)
+(defvar helm-comp-read-use-marked)
 
 (defconst addressbook-buffer-name "*addressbook*")
 
@@ -567,12 +568,29 @@ BOOKMARK is a bookmark name or a bookmark record."
                       bookmark-alist)
            when (addressbook-bookmark-p b) collect b))
 
+(defun addressbook-complete-multiple (prompt collection
+                                      &optional
+                                        predicate require-match initial-input hist)
+  "Returns a list of candidates.
+Use either `completing-read' or `completing-read-multiple'.
+`completing-read' is used when helm-mode is available, this allows
+using marked candidates."
+  (if (bound-and-true-p helm-mode)
+      (let ((helm-comp-read-use-marked t))
+        (completing-read prompt collection predicate require-match initial-input hist))
+    (completing-read-multiple prompt collection predicate require-match initial-input hist)))
+
 ;;;###autoload
-(defun addressbook-jump ()
-  (interactive)
-  (let* ((bookmark-alist (addressbook-bookmark-filter-setup-alist))
-         (bmk (completing-read "Jump to contact: " bookmark-alist nil t)))
-    (bookmark-jump bmk)))
+(defun addressbook-jump (bmks)
+  "Jump to bookmarks BMKS, a list of bookmarks.
+With a prefix arg append to addressbook buffer."
+  (interactive (list
+                (let* ((bookmark-alist (addressbook-bookmark-filter-setup-alist)))
+                  (addressbook-complete-multiple "Jump to contact: " bookmark-alist nil t))))
+  (bookmark-jump (car bmks))
+  (cl-loop with current-prefix-arg = '(4)
+           for b in (cdr bmks)
+           do (bookmark-jump b)))
 
 (provide 'addressbook-bookmark)
 

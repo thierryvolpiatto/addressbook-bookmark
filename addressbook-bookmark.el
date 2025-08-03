@@ -119,7 +119,8 @@ Special commands:
           (cond ((eq major-mode 'addressbook-mode)
                  (split-string
                   (assoc-default
-                   'email (addressbook-get-contact-data)) " ?, ?"))
+                   'email (addressbook-get-contact-data))
+                  " ?, ?" t))
                 ((and bookmark-name
                       (setq emails (assoc-default
                                     'email (assoc bookmark-name bookmark-alist))))

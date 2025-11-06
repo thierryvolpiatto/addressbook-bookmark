@@ -100,6 +100,8 @@ Special commands:
     (cl-loop for name in name-list
           do (save-excursion (addressbook-pp-info name t)))
     (goto-char (point-min))
+    (unless (looking-at "Addressbook")
+      (addressbook--insert-header))
     (search-forward cur-name nil t) (forward-line 0)))
 
 (defun addressbook-quit ()
@@ -434,6 +436,12 @@ When CONTACT arg is provided add only contact CONTACT and exit."
       (forward-line 0)
       (bookmark-bmenu-ensure-position))))
 
+(defun addressbook--insert-header ()
+  (insert (propertize (format "Addressbook %s"
+                              (capitalize (or user-login-name "unknown user")))
+                      'face '((:foreground "green" :underline t)))
+          "\n\n" addressbook-separator "\n"))
+
 (defun addressbook-pp-info (name &optional append)
   "Print addressbook entries to an addressbook buffer."
   (bookmark-maybe-load-default-file)
@@ -454,15 +462,12 @@ When CONTACT arg is provided add only contact CONTACT and exit."
                                         (string= image-path "")
                                         (not (file-exists-p image-path)))
                               (create-image image-path)))
-         (user (capitalize (or user-login-name "unknown user")))
          (inhibit-read-only t))
     (set-buffer buf)
     (if append
         (goto-char (point-max))
       (erase-buffer)
-      (insert (propertize (format "Addressbook %s" user)
-                          'face '((:foreground "green" :underline t)))
-              "\n\n" addressbook-separator "\n"))
+      (addressbook--insert-header))
     ;; Dont append entry if already there.
     (unless (save-excursion
               (goto-char (point-min))
